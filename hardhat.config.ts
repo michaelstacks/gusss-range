@@ -15,6 +15,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 const MNEMONIC: string = process.env.MNEMONIC ?? "test test test test test test test test test test test junk";
+const PRIVATE_KEY: string = process.env.PRIVATE_KEY ?? "";
 const INFURA_API_KEY: string = process.env.INFURA_API_KEY ?? "";
 const ETHERSCAN_API_KEY: string = process.env.ETHERSCAN_API_KEY ?? "";
 
@@ -52,11 +53,7 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
     },
     sepolia: {
-      accounts: {
-        mnemonic: MNEMONIC,
-        path: "m/44'/60'/0'/0/",
-        count: 10,
-      },
+      accounts: PRIVATE_KEY !== "" ? [PRIVATE_KEY] : undefined,
       chainId: 11155111,
       url: `https://sepolia.infura.io/v3/${INFURA_API_KEY}`,
     },
