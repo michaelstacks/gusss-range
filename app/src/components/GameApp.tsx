@@ -84,6 +84,8 @@ export function GameApp() {
       setHasJoined(false);
       setRound(0);
       setEncryptedResult(null);
+      setFeedbackCode(null);
+      setLastDecryptedCipher(null);
       return;
     }
 
@@ -111,7 +113,16 @@ export function GameApp() {
 
       setHasJoined(joined);
       setRound(Number(activeRound));
-      setEncryptedResult(latestResult);
+      setEncryptedResult((previous) => {
+        if (previous !== latestResult) {
+          setFeedbackCode(null);
+          setLastDecryptedCipher(null);
+          if (latestResult && latestResult !== ZERO_CIPHERTEXT) {
+            setStatusMessage('Encrypted result ready. Click decrypt to reveal feedback.');
+          }
+        }
+        return latestResult;
+      });
 
       if (!joined) {
         setFeedbackCode(null);
@@ -120,7 +131,7 @@ export function GameApp() {
     } catch (err) {
       console.error('Failed to refresh player data', err);
     }
-  }, [address, publicClient]);
+  }, [address, publicClient, isContractConfigured, contractAddress]);
 
   useEffect(() => {
     refreshPlayerData();
@@ -198,16 +209,14 @@ export function GameApp() {
       return;
     }
 
-    if (!instance || !address) {
+    if (!address || !isContractConfigured) {
       return;
     }
 
-    if (encryptedResult === lastDecryptedCipher) {
-      return;
+    if (encryptedResult !== lastDecryptedCipher) {
+      setStatusMessage('Encrypted result ready. Click decrypt to reveal feedback.');
     }
-
-    decryptCiphertext(encryptedResult);
-  }, [address, decryptCiphertext, encryptedResult, instance, lastDecryptedCipher]);
+  }, [address, encryptedResult, isContractConfigured, lastDecryptedCipher]);
 
   const handleJoin = async () => {
     if (!address) {
@@ -293,7 +302,7 @@ export function GameApp() {
       const tx = await contract.submitGuess(encryptedInput.handles[0], encryptedInput.inputProof);
       await tx.wait();
 
-      setStatusMessage('Guess submitted. Waiting for decryption...');
+      setStatusMessage('Guess submitted. Click decrypt after the result updates.');
       setGuessValue('');
       await refreshPlayerData();
     } catch (err) {
