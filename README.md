@@ -1,4 +1,4 @@
-# Encrypted Range Challenge
+# Encrypted Gusss Range
 
 An on-chain guessing game that keeps player secrets private with fully homomorphic encryption (FHE). Players contribute
 0.001 ether to start a round, receive a Zama-encrypted secret number between 1 and 20, and submit encrypted guesses.
